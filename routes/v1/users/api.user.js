@@ -173,5 +173,33 @@ router.put('/', (req, res) => {
   }
 });
 
+//user delete
+// TODO: implement admin authorization
+router.delete('/', (req, res) => {
+  try {
+      const { email } = req.body;
+      if(!req.body) {
+          return res.status(400).send('No query parameters provided');
+      }
+      pool.query(`SELECT user_id FROM users WHERE email = $1`, [email], (error, results) => {
+          if(error) {
+              throw error;
+          }
+          const id = results.rows[0].user_id;
+          pool.query(
+              `DELETE FROM users WHERE user_id = $1;`
+              , [id], (error) => {
+                  if(error) {
+                      throw error;
+                  }
+                  return res.status(201).json({ message: "User deleted successfully",data: {id: id} });
+              });
+      });
+  } catch (error) {
+      console.log('Error: ', error);
+      return res.status(500).send('Internal Server Error\n' + error);
+  }
+});
+
 
 module.exports = router;
