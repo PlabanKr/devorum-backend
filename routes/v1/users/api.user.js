@@ -17,12 +17,12 @@ router.get("/:id", (req, res) => {
         if (error) {
           throw error;
         }
-        res.status(200).json(results.rows);
+        return res.status(200).json(results.rows);
       }
     );
   } catch (error) {
     console.log("Error: ", error);
-    res.status(500).send("Internal Server Error\n" + error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
 
@@ -40,12 +40,12 @@ router.get("/", (req, res) => {
         if (error) {
           throw error;
         }
-        res.status(200).json(results.rows);
+        return res.status(200).json(results.rows);
       }
     );
   } catch (error) {
     console.log("Error: ", error);
-    res.status(500).send("Internal Server Error\n" + error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
 
@@ -65,7 +65,7 @@ router.post("/", async (req, res) => {
           throw error;
         }
         if (results.rowCount > 0) {
-          throw new Error("Email Already Exists");
+          return res.status(409).json({ message: "Email already exists" });
         } else {
           pool.query(
             "INSERT INTO users (name, user_name, email, is_admin, profile_photo, hashed_password, bio, account_type) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
@@ -89,7 +89,7 @@ router.post("/", async (req, res) => {
                 process.env.TOKEN_SECRET || "secret",
                 { expiresIn: "7d" }
               );
-              res.status(201).json({ token: jwtToken, user: results.rows[0] });
+              return res.status(201).json({ token: jwtToken, user: results.rows[0] });
             }
           );
         }
@@ -97,7 +97,7 @@ router.post("/", async (req, res) => {
     );
   } catch (error) {
     console.log("Error: ", error);
-    res.status(500).send("Internal Server Error\n" + error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
 
@@ -128,12 +128,12 @@ router.post("/login", async (req, res) => {
           process.env.TOKEN_SECRET || "secret",
           { expiresIn: "7d" }
         );
-        res.status(200).json({ token: token, user: user });
+        return res.status(200).json({ token: token, user: user });
       }
     );
   } catch (error) {
     console.log("Error: ", error);
-    res.status(500).send("Internal Server Error\n" + error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
 
