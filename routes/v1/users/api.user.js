@@ -77,15 +77,19 @@ router.post("/", async (req, res) => {
               newUser.profile_photo || null,
               newUser.password,
               newUser.bio || null,
-              newUser.account_type || "basic"
+              newUser.account_type || "basic",
             ],
             (error, results) => {
-              if(error) {
+              if (error) {
                 throw error;
               }
               const email = results.rows[0].email;
-              const jwtToken = jwt.sign({email}, process.env.TOKEN_SECRET || 'secret', { expiresIn: "7d" });
-              res.status(201).json({token: jwtToken, user: results.rows[0]});
+              const jwtToken = jwt.sign(
+                { email },
+                process.env.TOKEN_SECRET || "secret",
+                { expiresIn: "7d" }
+              );
+              res.status(201).json({ token: jwtToken, user: results.rows[0] });
             }
           );
         }
@@ -98,29 +102,39 @@ router.post("/", async (req, res) => {
 });
 
 // user login
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
-      const { email, password } = req.body;
-      pool.query('SELECT * FROM users WHERE email = $1', [email], async (error, results) => {
-          if(error) {
-              throw error;
-          }
-          if(results.rows.length === 0) {
-              return res.status(400).send('Email or Password is wrong');
-          }
-          const user = results.rows[0];
-          const validPassword = await bcrypt.compare(password, user.hashed_password);
-          if(!validPassword) {
-              return res.status(400).send('Email or Password is wrong');
-          }
-          const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET || 'secret', { expiresIn: "7d" })
-          res.status(200).json({token: token, user: user});
-      });
+    const { email, password } = req.body;
+    pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email],
+      async (error, results) => {
+        if (error) {
+          throw error;
+        }
+        if (results.rows.length === 0) {
+          return res.status(400).send("Email or Password is wrong");
+        }
+        const user = results.rows[0];
+        const validPassword = await bcrypt.compare(
+          password,
+          user.hashed_password
+        );
+        if (!validPassword) {
+          return res.status(400).send("Email or Password is wrong");
+        }
+        const token = jwt.sign(
+          { email: user.email },
+          process.env.TOKEN_SECRET || "secret",
+          { expiresIn: "7d" }
+        );
+        res.status(200).json({ token: token, user: user });
+      }
+    );
   } catch (error) {
-      console.log('Error: ', error);
-      res.status(500).send('Internal Server Error\n' + error);
+    console.log("Error: ", error);
+    res.status(500).send("Internal Server Error\n" + error);
   }
 });
-
 
 module.exports = router;
