@@ -24,4 +24,27 @@ router.get("/:id", (req, res) => {
   }
 });
 
+// get all users
+router.get("/", (req, res) => {
+  try {
+    const limit = req.query.limit;
+    const page = req.query.page;
+    const offset = (page - 1) * limit;
+
+    pool.query(
+      "SELECT * FROM users LIMIT $1 OFFSET $2",
+      [limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 module.exports = router;
