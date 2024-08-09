@@ -5,4 +5,4 @@ const userRoutes = require("./users/api.user.js");
 
 router.use("/user", userRoutes);
 
-export default express;
+module.exports = router;
