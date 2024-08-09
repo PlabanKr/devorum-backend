@@ -137,4 +137,41 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// user update
+router.put('/', (req, res) => {
+  try {
+      const { email, update } = req.body;
+      if(!req.body) {
+          // TODO: implement body not found error in other routes
+          return res.status(400).send('No query parameters provided');
+      }
+      pool.query(`SELECT user_id FROM users WHERE email = $1`, [email], (error, results) => {
+          if(error) {
+              throw error;
+          }
+          const id = results.rows[0].user_id;
+          pool.query(
+              `UPDATE users
+              SET ${Object.keys(update).map((key, index) => `${key} = $${index + 1}`).join(", ")}
+              WHERE user_id = $${Object.keys(update).length + 1};`
+              , [...Object.values(update), id], (error) => {
+                  if(error) {
+                      throw error;
+                  }
+                  pool.query(
+                      `SELECT * FROM users WHERE user_id = $1`, [id], (error, selectResults) => {
+                      if(error) {
+                          throw error;
+                      }
+                      return res.status(201).json({ message: "User updated successfully",data: selectResults.rows[0] });
+                  });
+              });
+      });
+  } catch (error) {
+      console.log('Error: ', error);
+      return res.status(500).send('Internal Server Error\n' + error);
+  }
+});
+
+
 module.exports = router;
