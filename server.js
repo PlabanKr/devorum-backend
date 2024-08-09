@@ -13,6 +13,9 @@ SERVER.use(express.json());
 SERVER.use(cors({ origin: FRONTEND_ORIGIN, credentials: true }));
 
 // ROUTES
+const apiV1 = require("./routes/v1/api.v1.js");
+SERVER.use("/api/v1/", apiV1);
+
 SERVER.get("/", (req, res) => {
   res.send("⚡Server is running⚡");
 });
