@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 // database connection pool
-const { pool } = require("../../../database/postgres.database.js");
+const pool = require("../../../database/postgres.database.js");
 
 // get user by id
 router.get("/:id", (req, res) => {
