@@ -68,7 +68,7 @@ router.post("/", async (req, res) => {
           return res.status(409).json({ message: "Email already exists" });
         } else {
           pool.query(
-            "INSERT INTO users (name, user_name, email, is_admin, profile_photo, hashed_password, bio, account_type) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
+            "INSERT INTO users (name, user_name, email, is_admin, profile_photo, hashed_password, bio, account_type, address, qualification, certifications, skills_temp, gender) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *",
             [
               newUser.name || null,
               newUser.user_name,
@@ -78,6 +78,11 @@ router.post("/", async (req, res) => {
               newUser.password,
               newUser.bio || null,
               newUser.account_type || "basic",
+              newUser.address || null,
+              newUser.qualification || null,
+              newUser.certifications || null,
+              newUser.skills_temp || null,
+              newUser.gender || null
             ],
             (error, results) => {
               if (error) {
