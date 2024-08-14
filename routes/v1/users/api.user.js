@@ -82,7 +82,7 @@ router.post("/", async (req, res) => {
               newUser.qualification || null,
               newUser.certifications || null,
               newUser.skills_temp || null,
-              newUser.gender || null
+              newUser.gender || null,
             ],
             (error, results) => {
               if (error) {
@@ -94,7 +94,9 @@ router.post("/", async (req, res) => {
                 process.env.TOKEN_SECRET || "secret",
                 { expiresIn: "7d" }
               );
-              return res.status(201).json({ token: jwtToken, user: results.rows[0] });
+              return res
+                .status(201)
+                .json({ token: jwtToken, user: results.rows[0] });
             }
           );
         }
@@ -143,71 +145,90 @@ router.post("/login", async (req, res) => {
 });
 
 // user update
-router.put('/', (req, res) => {
+router.put("/", (req, res) => {
   try {
-      const { email, update } = req.body;
-      if(!req.body) {
-          // TODO: implement body not found error in other routes
-          return res.status(400).send('No query parameters provided');
-      }
-      pool.query(`SELECT user_id FROM users WHERE email = $1`, [email], (error, results) => {
-          if(error) {
+    const { email, update } = req.body;
+    if (!req.body) {
+      // TODO: implement body not found error in other routes
+      return res.status(400).send("No query parameters provided");
+    }
+    pool.query(
+      `SELECT user_id FROM users WHERE email = $1`,
+      [email],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        const id = results.rows[0].user_id;
+        pool.query(
+          `UPDATE users
+              SET ${Object.keys(update)
+                .map((key, index) => `${key} = $${index + 1}`)
+                .join(", ")}
+              WHERE user_id = $${Object.keys(update).length + 1};`,
+          [...Object.values(update), id],
+          (error) => {
+            if (error) {
               throw error;
-          }
-          const id = results.rows[0].user_id;
-          pool.query(
-              `UPDATE users
-              SET ${Object.keys(update).map((key, index) => `${key} = $${index + 1}`).join(", ")}
-              WHERE user_id = $${Object.keys(update).length + 1};`
-              , [...Object.values(update), id], (error) => {
-                  if(error) {
-                      throw error;
-                  }
-                  pool.query(
-                      `SELECT * FROM users WHERE user_id = $1`, [id], (error, selectResults) => {
-                      if(error) {
-                          throw error;
-                      }
-                      return res.status(201).json({ message: "User updated successfully",data: selectResults.rows[0] });
+            }
+            pool.query(
+              `SELECT * FROM users WHERE user_id = $1`,
+              [id],
+              (error, selectResults) => {
+                if (error) {
+                  throw error;
+                }
+                return res
+                  .status(201)
+                  .json({
+                    message: "User updated successfully",
+                    data: selectResults.rows[0],
                   });
-              });
-      });
+              }
+            );
+          }
+        );
+      }
+    );
   } catch (error) {
-      console.log('Error: ', error);
-      return res.status(500).send('Internal Server Error\n' + error);
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
 
-// TODO: User password with OTP or PassKey 
+// TODO: User password with OTP or PassKey
 // user password update
 
 //user delete
 // TODO: implement admin authorization
-router.delete('/', (req, res) => {
+router.delete("/", (req, res) => {
   try {
-      const { email } = req.body;
-      if(!req.body) {
-          return res.status(400).send('No query parameters provided');
-      }
-      pool.query(`SELECT user_id FROM users WHERE email = $1`, [email], (error, results) => {
-          if(error) {
-              throw error;
+    const { email } = req.body;
+    if (!req.body) {
+      return res.status(400).send("No query parameters provided");
+    }
+    pool.query(
+      `SELECT user_id FROM users WHERE email = $1`,
+      [email],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        const id = results.rows[0].user_id;
+        pool.query(`DELETE FROM users WHERE user_id = $1;`, [id], (error) => {
+          if (error) {
+            throw error;
           }
-          const id = results.rows[0].user_id;
-          pool.query(
-              `DELETE FROM users WHERE user_id = $1;`
-              , [id], (error) => {
-                  if(error) {
-                      throw error;
-                  }
-                  return res.status(201).json({ message: "User deleted successfully",data: {id: id} });
-              });
-      });
+          return res
+            .status(201)
+            .json({ message: "User deleted successfully", data: { id: id } });
+        });
+      }
+    );
   } catch (error) {
-      console.log('Error: ', error);
-      return res.status(500).send('Internal Server Error\n' + error);
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
   }
 });
-
 
 module.exports = router;
