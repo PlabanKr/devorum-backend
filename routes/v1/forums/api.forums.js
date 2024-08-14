@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+// database connection pool
+const pool = require("../../../database/postgres.database.js");
+
 // Get all the forums
 router.get("/", (req, res) => {
   try {
