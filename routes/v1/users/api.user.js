@@ -178,6 +178,9 @@ router.put('/', (req, res) => {
   }
 });
 
+// TODO: User password with OTP or PassKey 
+// user password update
+
 //user delete
 // TODO: implement admin authorization
 router.delete('/', (req, res) => {
