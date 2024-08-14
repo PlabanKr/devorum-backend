@@ -47,4 +47,44 @@ router.get("/:id", (req, res) => {
   }
 });
 
+// Create a forum
+router.post("/", async (req, res) => {
+  try {
+    const newForum = req.body;
+    pool.query(
+      "SELECT * FROM forums WHERE title=$1",
+      [newForum.title],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        if (results.rowCount > 0) {
+          return res.status(409).json({ message: "Forum title already exists" });
+        } else {
+          pool.query(
+            "INSERT INTO forums (title, details, rules) VALUES ($1,$2,$3) RETURNING *",
+            [
+              newForum.title,
+              newForum.details,
+              newForum.rules,
+            ],
+            (error, results) => {
+              if (error) {
+                throw error;
+              }
+              return res
+                .status(201)
+                .json(results.rows[0]);
+            }
+          );
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+
 module.exports = router;
