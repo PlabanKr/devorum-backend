@@ -17,6 +17,36 @@ create table users(
 	created_at timestamp default current_timestamp
 );
 
+alter table users add column address varchar;
+alter table users add column qualification varchar;
+alter table users add column certifications varchar;
+alter table users add column skills_temp varchar;
+alter table users add column gender varchar(20);
+
+create table forums(
+	forum_id serial primary key,
+	title varchar not null unique,
+	details varchar,
+	rules varchar,
+	created_at timestamp default current_timestamp
+);
+
+create type idea_status as enum ('abandoned', 'completed', 'hold', 'searching');
+
+create table ideas(
+	idea_id serial primary key,
+	title varchar not null,
+	body varchar not null,
+	status idea_status not null default 'searching',
+	user_id int references users(user_id),
+	forum_id int references forums(forum_id),
+	created_at timestamp default current_timestamp
+);
+
+
+-- peek into all tables and schemas
+SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
+
 -- seed database
 insert into users(name, user_name, email, is_admin, profile_photo, hashed_password, bio, account_type)
 values ('Test User', 'test_user_1234', 'test@test.com', false, 'http://test.com/photo', 'password', 'First account of this app', 'ultra');
@@ -26,3 +56,5 @@ values 	('Test User 2', 'test_user_1235', 'test1@test.com', false, 'http://test.
 
 -- peek into data 
 select * from users;
+select * from forums;
+select * from ideas;
