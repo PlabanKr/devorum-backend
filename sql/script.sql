@@ -43,6 +43,12 @@ create table ideas(
 	created_at timestamp default current_timestamp
 );
 
+create table idea_interested(
+	interested_id serial primary key,
+	user_id int references users(user_id),
+	ideas_id int references ideas(idea_id)
+);
+
 
 -- peek into all tables and schemas
 SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
@@ -58,3 +64,4 @@ values 	('Test User 2', 'test_user_1235', 'test1@test.com', false, 'http://test.
 select * from users;
 select * from forums;
 select * from ideas;
+select * from idea_interested;
