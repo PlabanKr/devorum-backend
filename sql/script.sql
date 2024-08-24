@@ -1,3 +1,6 @@
+-- create db
+create database devorum_express;
+
 -- create tables and data types
 create type account_type as enum ('basic', 'premium', 'ultra');
 
