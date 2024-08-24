@@ -29,9 +29,11 @@ router.get("/:id", (req, res) => {
 // get all users
 router.get("/", (req, res) => {
   try {
-    const limit = req.query.limit;
-    const page = req.query.page;
-    const offset = (page - 1) * limit;
+    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1;    // Default to 1 if not provided or invalid
+
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
 
     pool.query(
       "SELECT * FROM users LIMIT $1 OFFSET $2",
