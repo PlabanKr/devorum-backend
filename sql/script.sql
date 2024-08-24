@@ -19,6 +19,7 @@ alter table users add column qualification varchar;
 alter table users add column certifications varchar;
 alter table users add column skills_temp varchar;
 alter table users add column gender varchar(20);
+alter table users add column roles varchar(20);
 
 create table forums(
 	forum_id serial primary key,
