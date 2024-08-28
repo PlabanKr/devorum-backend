@@ -6,6 +6,32 @@ const router = express.Router();
 // database connection pool
 const pool = require("../../../database/postgres.database.js");
 
+/*
+  ORDER OF THE ROUTE IS IMPORTANT, ANY ROUTE THAT IS TAKING req.params MUST BE DECLARED AT LOWER THAN THE DECLARATION OF SIMILAR ROUTE.
+  ELSE THE req.params ROUTE WILL RUN FIRST
+*/
+
+// get user by email 
+router.get("/email", (req, res) => {
+  try {
+    const data = req.body;
+    pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [data.email],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+
 // get user by id
 router.get("/:id", (req, res) => {
   try {
