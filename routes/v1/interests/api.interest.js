@@ -77,5 +77,68 @@ router.get("/id/:id", (req, res) => {
   }
 });
 
+// Create an interest
+router.post("/", async (req, res) => {
+  try {
+    const newInterest = req.body;
+    pool.query(
+      "SELECT * FROM idea_interested WHERE user_id=$1 AND ideas_id=$2",
+      [newInterest.user_id, newInterest.idea_id],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        if (results.rowCount > 0) {
+          return res.status(409).json({ message: "Cannot interest an idea twice." });
+        } else {
+          pool.query(
+            "INSERT INTO idea_interested (user_id, ideas_id) VALUES ($1,$2) RETURNING *",
+            [newInterest.user_id, newInterest.idea_id],
+            (error, results) => {
+              if (error) {
+                throw error;
+              }
+              return res
+                .status(201)
+                .json(results.rows[0]);
+            }
+          );
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+// delete idea
+router.delete("/", (req, res) => {
+  try {
+    const {user_id, idea_id} = req.params;
+    pool.query("SELECT * FROM ideas WHERE idea_id = $1 AND user_id = $2", [idea_id, user_id], (error, results) => {
+      if (error) {
+        throw error;
+      }
+      if (results.rowCount > 0) {
+        pool.query("DELETE FROM ideas WHERE idea_id = $1;", [id], (error) => {
+          if (error) {
+            throw error;
+          }
+          return res
+            .status(202)
+            .json({ message: "Idea deleted successfully", data: { id: id } });
+        });
+      } else {
+        return res.status(404).json({ message: "Interest does not exist" });
+      }
+    });
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+
 module.exports = router;
 
