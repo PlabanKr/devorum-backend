@@ -14,7 +14,7 @@ const pool = require("../../../database/postgres.database.js");
 */
 
 // get user by email 
-router.get("/email", (req, res) => {
+router.post("/email", (req, res) => {
   try {
     const data = req.body;
     pool.query(
@@ -34,7 +34,7 @@ router.get("/email", (req, res) => {
 });
 
 // get user by user_name 
-router.get("/user_name", (req, res) => {
+router.post("/user_name", (req, res) => {
   try {
     const data = req.body;
     pool.query(
