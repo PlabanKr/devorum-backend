@@ -7,8 +7,11 @@ const pool = require("../../../database/postgres.database.js");
 // Get all the forums
 router.get("/", (req, res) => {
   try {
-    const limit = req.query.limit;
-    const page = req.query.page;
+    // Parse the query parameters to integers, provide default values if not provided
+    const limit = parseInt(req.query.limit, 10) || 10; // Default limit of 10 if not provided
+    const page = parseInt(req.query.page, 10) || 1;    // Default page of 1 if not provided
+
+    // Calculate offset, ensuring it's a number
     const offset = (page - 1) * limit;
 
     pool.query(
@@ -45,6 +48,20 @@ router.get("/:id", (req, res) => {
     console.log("Error: ", error);
     return res.status(500).send("Internal Server Error\n" + error);
   }
+});
+
+router.get("/devorum/:devorum", (req, res) => {
+  const devorum = req.params.devorum;
+  pool.query(
+    "SELECT * FROM forums WHERE devorum = $1",
+    [devorum],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      res.status(200).json(results.rows[0]);
+    }
+  );
 });
 
 // Create a forum
