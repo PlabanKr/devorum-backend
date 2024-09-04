@@ -50,6 +50,11 @@ create table idea_interested(
 	ideas_id int references ideas(idea_id)
 );
 
+create table forum_joined(
+	joined_id serial primary key,
+	user_id int references users(user_id),
+	forums_id int references forums(forum_id)
+);
 
 -- peek into all tables and schemas
 SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
@@ -66,6 +71,7 @@ select * from users;
 select * from forums;
 select * from ideas;
 select * from idea_interested;
+select * from forum_joined;
 
 alter table forums add column devorum varchar;
 
@@ -113,6 +119,21 @@ VALUES (
     CURRENT_TIMESTAMP,
 	'game-design'
 );
+
+insert into forum_joined(user_id, forums_id)
+values ( 9, 1 );
+
+insert into forum_joined(user_id, forums_id)
+values ( 9, 2 );
+
+insert into forum_joined(user_id, forums_id)
+values ( 9, 3 );
+
+insert into forum_joined(user_id, forums_id)
+values ( 9, 4 );
+
+insert into forum_joined(user_id, forums_id)
+values ( 9, 5 );
 
 
 
