@@ -58,11 +58,11 @@ router.get("/id/:id", (req, res) => {
 });
 
 // get interest by user
-router.get("/id/:id", (req, res) => {
+router.get("/user_id/:id", (req, res) => {
   try {
     const id = req.params.id;
     pool.query(
-      "SELECT * FROM idea_interested WHERE interested_id = $1",
+      "SELECT * FROM idea_interested WHERE user_id = $1",
       [id],
       (error, results) => {
         if (error) {
