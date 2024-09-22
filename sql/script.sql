@@ -121,19 +121,19 @@ VALUES (
 );
 
 insert into forum_joined(user_id, forums_id)
-values ( 9, 1 );
+values ( 2, 1 );
 
 insert into forum_joined(user_id, forums_id)
-values ( 9, 2 );
+values ( 2, 2 );
 
 insert into forum_joined(user_id, forums_id)
-values ( 9, 3 );
+values ( 2, 3 );
 
 insert into forum_joined(user_id, forums_id)
-values ( 9, 4 );
+values ( 2, 4 );
 
 insert into forum_joined(user_id, forums_id)
-values ( 9, 5 );
+values ( 2, 5 );
 
 
 
