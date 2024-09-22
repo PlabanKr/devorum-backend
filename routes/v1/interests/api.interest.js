@@ -160,9 +160,9 @@ router.delete("/", (req, res) => {
 });
 
 // delete idea interested using idea_id
-router.delete("/", (req, res) => {
+router.delete("/idea/:id", (req, res) => {
   try {
-    const {idea_id} = req.body;
+    const idea_id = req.params.id;
     pool.query("SELECT * FROM idea_interested WHERE ideas_id = $1", [idea_id], (error, results) => {
       if (error) {
         throw error;
