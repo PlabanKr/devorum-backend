@@ -112,7 +112,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// delete idea
+// delete idea interested using user_id and idea_id
 router.delete("/", (req, res) => {
   try {
     const {user_id, idea_id} = req.params;
