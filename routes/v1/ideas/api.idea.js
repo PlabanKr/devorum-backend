@@ -14,7 +14,7 @@ const pool = require("../../../database/postgres.database.js");
 // Get all ideas
 router.get("/", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
 
     // Calculate offset, ensure it's non-negative
@@ -84,9 +84,8 @@ router.get("/user/:id", (req, res) => {
 // get idea by forum_id (example: localhost:5000/api/v1/idea/forum/1 OR localhost:5000/api/v1/idea/forum/1?limit=1000&page=1)
 router.get("/forum/:id", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
-
     // Calculate offset, ensure it's non-negative
     const offset = Math.max((page - 1) * limit, 0);
     const id = req.params.id;
@@ -111,12 +110,13 @@ router.post("/", (req, res) => {
   try {
     const newIdea = req.body;
     pool.query(
-      "INSERT INTO ideas (title, body, user_id, forum_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO ideas (title, body, user_id, forum_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [
         newIdea.title, 
         newIdea.body, 
         Number(newIdea.user_id), 
-        Number(newIdea.forum_id)
+        Number(newIdea.forum_id),
+        newIdea.status,
       ],
       (error, results) => {
         if (error) {
