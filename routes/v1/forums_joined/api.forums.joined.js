@@ -87,6 +87,41 @@ router.get("/forum/:id", (req, res) => {
   }
 });
 
+// Create a forum joined entry
+router.post("/", async (req, res) => {
+  try {
+    const {user_id, forum_id} = req.body;
+    pool.query(
+      "SELECT * FROM forum_joined WHERE user_id=$1 AND forums_id=$2",
+      [user_id, forum_id],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        if (results.rowCount > 0) {
+          return res.status(409).json({ message: "User is already joined in the forum" });
+        } else {
+          pool.query(
+            "INSERT INTO forum_joined (user_id, forums_id) VALUES ($1,$2) RETURNING *",
+            [user_id, forum_id],
+            (error, results) => {
+              if (error) {
+                throw error;
+              }
+              return res
+                .status(201)
+                .json(results.rows[0]);
+            }
+          );
+        }
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 
 module.exports = router;
 
