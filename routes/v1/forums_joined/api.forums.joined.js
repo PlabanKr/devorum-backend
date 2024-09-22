@@ -122,6 +122,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+// delete forums joined entry using user_id and forum_id
+router.delete("/", (req, res) => {
+  try {
+    const {user_id, forum_id} = req.body;
+    pool.query("SELECT * FROM forum_joined WHERE forums_id = $1 AND user_id = $2", [forum_id, user_id], (error, results) => {
+      if (error) {
+        throw error;
+      }
+      if (results.rowCount > 0) {
+        pool.query("DELETE FROM forum_joined WHERE forums_id = $1 AND user_id = $2", [forum_id, user_id], (error) => {
+          if (error) {
+            throw error;
+          }
+          return res
+            .status(202)
+            .json({ message: "Forum joined entry deleted successfully", data: { forum_id: forum_id, user_id: user_id } });
+        });
+      } else {
+        return res.status(404).json({ message: "User is not in the forum" });
+      }
+    });
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+
 
 module.exports = router;
 
