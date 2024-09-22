@@ -115,19 +115,19 @@ router.post("/", async (req, res) => {
 // delete idea
 router.delete("/", (req, res) => {
   try {
-    const {user_id, idea_id} = req.params;
-    pool.query("SELECT * FROM ideas WHERE idea_id = $1 AND user_id = $2", [idea_id, user_id], (error, results) => {
+    const {user_id, idea_id} = req.body;
+    pool.query("SELECT * FROM idea_interested WHERE ideas_id = $1 AND user_id = $2", [idea_id, user_id], (error, results) => {
       if (error) {
         throw error;
       }
       if (results.rowCount > 0) {
-        pool.query("DELETE FROM ideas WHERE idea_id = $1;", [id], (error) => {
+        pool.query("DELETE FROM idea_interested WHERE ideas_id = $1;", [idea_id], (error) => {
           if (error) {
             throw error;
           }
           return res
             .status(202)
-            .json({ message: "Idea deleted successfully", data: { id: id } });
+            .json({ message: "Idea deleted successfully", data: { idea_id: idea_id } });
         });
       } else {
         return res.status(404).json({ message: "Interest does not exist" });
