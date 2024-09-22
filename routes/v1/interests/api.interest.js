@@ -141,7 +141,7 @@ router.delete("/", (req, res) => {
         throw error;
       }
       if (results.rowCount > 0) {
-        pool.query("DELETE FROM idea_interested WHERE ideas_id = $1;", [idea_id], (error) => {
+        pool.query("DELETE FROM idea_interested WHERE ideas_id = $1 AND user_id = $2;", [idea_id, user_id], (error) => {
           if (error) {
             throw error;
           }
