@@ -72,7 +72,7 @@ router.get("/forum/:id", (req, res) => {
     const offset = Math.max((page - 1) * limit, 0);
     const id = req.params.id;
     pool.query(
-      "SELECT * FROM forum_joined WHERE forum_id = $1 LIMIT $2 OFFSET $3",
+      "SELECT * FROM forum_joined WHERE forums_id = $1 LIMIT $2 OFFSET $3",
       [id, limit, offset],
       (error, results) => {
         if (error) {
