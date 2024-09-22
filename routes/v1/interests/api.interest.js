@@ -77,6 +77,26 @@ router.get("/user_id/:id", (req, res) => {
   }
 });
 
+// get interests by idea
+router.get("/idea_id/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM idea_interested WHERE ideas_id = $1",
+      [id],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // Create an interest
 router.post("/", async (req, res) => {
   try {
