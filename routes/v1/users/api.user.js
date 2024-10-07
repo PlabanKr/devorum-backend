@@ -53,25 +53,6 @@ router.post("/user_name", (req, res) => {
   }
 });
 
-// get user by id
-router.get("/:id", (req, res) => {
-  try {
-    const id = req.params.id;
-    pool.query(
-      "SELECT * FROM users WHERE user_id = $1",
-      [id],
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-        return res.status(200).json(results.rows);
-      }
-    );
-  } catch (error) {
-    console.log("Error: ", error);
-    return res.status(500).send("Internal Server Error\n" + error);
-  }
-});
 
 // get all users
 router.get("/", (req, res) => {
@@ -97,6 +78,27 @@ router.get("/", (req, res) => {
     return res.status(500).send("Internal Server Error\n" + error);
   }
 });
+
+// get user by id
+router.get("/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM users WHERE user_id = $1",
+      [id],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 
 // create new user
 router.post("/", async (req, res) => {
