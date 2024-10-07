@@ -139,13 +139,12 @@ router.post("/", (req, res) => {
   try {
     const newIdea = req.body;
     pool.query(
-      "INSERT INTO ideas (title, body, user_id, forum_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      "INSERT INTO ideas (title, body, user_id, forum_id) VALUES ($1, $2, $3, $4) RETURNING *",
       [
         newIdea.title, 
         newIdea.body, 
         Number(newIdea.user_id), 
-        Number(newIdea.forum_id),
-        newIdea.status,
+        Number(newIdea.forum_id)
       ],
       (error, results) => {
         if (error) {
