@@ -79,6 +79,35 @@ router.get("/", (req, res) => {
   }
 });
 
+// search idea (example: localhost:5000/api/v1/user/search?query=test)
+router.get("/search", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    pool.query(
+      "SELECT * FROM users WHERE name ILIKE $1 OR user_name ILIKE $1 LIMIT $2 OFFSET $3",
+      [`%${query}%`, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // get user by id
 router.get("/:id", (req, res) => {
   try {
