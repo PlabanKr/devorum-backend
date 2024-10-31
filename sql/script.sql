@@ -56,6 +56,15 @@ create table forum_joined(
 	forums_id int references forums(forum_id)
 );
 
+create table connections(
+	connection_id serial primary key,
+	sender_id int references users(user_id) not null,
+	receiver_id int references users(user_id) not null,
+	accepted boolean default false not null,
+	sent_at timestamp default current_timestamp
+);
+
+
 -- peek into all tables and schemas
 SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
 
@@ -134,6 +143,9 @@ values ( 2, 4 );
 
 insert into forum_joined(user_id, forums_id)
 values ( 2, 5 );
+
+insert into connections (sender_id, receiver_id)
+values ( 3, 8 );
 
 
 
