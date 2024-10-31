@@ -96,7 +96,7 @@ router.get("/receiver/:id", (req, res) => {
   }
 });
 
-// get pending connections by receiver id (example: localhost:5000/api/v1/connection/receiver/1)
+// get pending connections by receiver id (example: localhost:5000/api/v1/connection/pending/receiver/1)
 // receiver can see which connections are pending
 router.get("/pending/receiver/:id", (req, res) => {
   try {
