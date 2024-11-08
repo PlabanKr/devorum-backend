@@ -117,6 +117,26 @@ router.get("/pending/receiver/:id", (req, res) => {
   }
 });
 
+// receiver can see which connections are pending
+router.get("/connected/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM connections WHERE (receiver_id = $1 OR sender_id = $1) AND accepted = true",
+      [id],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // create new connection (example: localhost:5000/api/v1/connection)
 router.post("/", (req, res) => {
   try {
