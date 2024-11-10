@@ -190,14 +190,29 @@ router.get("/user/:id/feed", (req, res) => {
     pool.query(
       `
       SELECT * FROM (
+        -- Ideas created by the user
         SELECT ideas.*
         FROM ideas
         WHERE ideas.user_id = $1
+        
         UNION
+        
+        -- Ideas from forums the user has joined
         SELECT ideas.*
         FROM ideas
         JOIN forum_joined ON ideas.forum_id = forum_joined.forums_id
         WHERE forum_joined.user_id = $1
+
+        UNION
+        
+        -- Ideas from users who are connected to the user with accepted = true
+        SELECT ideas.*
+        FROM ideas
+        JOIN connections ON (ideas.user_id = connections.sender_id OR ideas.user_id = connections.receiver_id)
+        WHERE (connections.sender_id = $1 OR connections.receiver_id = $1)
+          AND connections.accepted = true
+          AND ideas.user_id != $1 -- Exclude ideas by the user to avoid duplicates
+
       ) AS user_feed
       ORDER BY user_feed.created_at DESC
       LIMIT $2 OFFSET $3
@@ -215,6 +230,7 @@ router.get("/user/:id/feed", (req, res) => {
     return res.status(500).send("Internal Server Error\n" + error);
   }
 });
+
 
 // search idea (example: localhost:5000/api/v1/idea/search?query=gamedev)
 router.get("/search", (req, res) => {
