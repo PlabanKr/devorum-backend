@@ -155,6 +155,30 @@ router.get("/forum/:id", (req, res) => {
   }
 });
 
+// get recent ideas by forum_id (example: localhost:5000/api/v1/idea/forum/1/recent OR localhost:5000/api/v1/idea/forum/1/recent?limit=1000&page=1)
+router.get("/forum/:id/recent", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 20) || 20; // Default to 20 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM ideas WHERE forum_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+      [id, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // search idea (example: localhost:5000/api/v1/idea/search?query=gamedev)
 router.get("/search", (req, res) => {
   try {
