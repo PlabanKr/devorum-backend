@@ -39,7 +39,7 @@ router.get("/", (req, res) => {
 // Get all recent ideas
 router.get("/recent", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 20) || 20; // Default to 10 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
 
     // Calculate offset, ensure it's non-negative
@@ -109,7 +109,7 @@ router.get("/user/:id", (req, res) => {
 // get recent ideas by user_id (example: localhost:5000/api/v1/idea/user/1/recent OR localhost:5000/api/v1/idea/user/1/recent?limit=1000&page=1)
 router.get("/user/:id/recent", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 20) || 20; // Default to 20 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
 
     // Calculate offset, ensure it's non-negative
@@ -158,7 +158,7 @@ router.get("/forum/:id", (req, res) => {
 // get recent ideas by forum_id (example: localhost:5000/api/v1/idea/forum/1/recent OR localhost:5000/api/v1/idea/forum/1/recent?limit=1000&page=1)
 router.get("/forum/:id/recent", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 20) || 20; // Default to 20 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
     // Calculate offset, ensure it's non-negative
     const offset = Math.max((page - 1) * limit, 0);
