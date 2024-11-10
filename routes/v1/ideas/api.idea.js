@@ -36,6 +36,31 @@ router.get("/", (req, res) => {
   }
 });
 
+// Get all recent ideas
+router.get("/recent", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 20) || 20; // Default to 10 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+
+    pool.query(
+      "SELECT * FROM ideas ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+      [limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // get idea by id (example: localhost:5000/api/v1/idea/id/1)
 router.get("/id/:id", (req, res) => {
   try {
