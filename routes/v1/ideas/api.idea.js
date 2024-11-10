@@ -84,7 +84,7 @@ router.get("/id/:id", (req, res) => {
 // get idea by user_id (example: localhost:5000/api/v1/idea/user/1 OR localhost:5000/api/v1/idea/user/1?limit=1000&page=1)
 router.get("/user/:id", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
 
     // Calculate offset, ensure it's non-negative
