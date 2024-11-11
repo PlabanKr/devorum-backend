@@ -139,12 +139,13 @@ router.post("/", (req, res) => {
   try {
     const newIdea = req.body;
     pool.query(
-      "INSERT INTO ideas (title, body, user_id, forum_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO ideas (title, body, user_id, forum_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [
-        newIdea.title, 
-        newIdea.body, 
-        Number(newIdea.user_id), 
-        Number(newIdea.forum_id)
+        newIdea.title,
+        newIdea.body,
+        Number(newIdea.user_id),
+        Number(newIdea.forum_id),
+        newIdea.status  // Add the status field here
       ],
       (error, results) => {
         if (error) {
@@ -164,17 +165,16 @@ router.post("/", (req, res) => {
 router.put("/id/:id", (req, res) => {
   try {
     if (!req.body) {
-      // TODO: implement body not found error in other routes
       return res.status(400).send("No query parameters provided");
     }
-    const {id} = req.params;
+    const { id } = req.params;
     const updatedIdea = req.body;
     pool.query(
       `UPDATE ideas
           SET ${Object.keys(updatedIdea)
             .map((key, index) => `${key} = $${index + 1}`)
             .join(", ")}
-          WHERE idea_id = $${Object.keys(update).length + 1};`,
+          WHERE idea_id = $${Object.keys(updatedIdea).length + 1};`,
       [...Object.values(updatedIdea), id],
       (error) => {
         if (error) {
