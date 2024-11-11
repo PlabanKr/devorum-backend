@@ -36,6 +36,31 @@ router.get("/", (req, res) => {
   }
 });
 
+// Get all recent ideas
+router.get("/recent", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+
+    pool.query(
+      "SELECT * FROM ideas ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+      [limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 // get idea by id (example: localhost:5000/api/v1/idea/id/1)
 router.get("/id/:id", (req, res) => {
   try {
@@ -59,7 +84,7 @@ router.get("/id/:id", (req, res) => {
 // get idea by user_id (example: localhost:5000/api/v1/idea/user/1 OR localhost:5000/api/v1/idea/user/1?limit=1000&page=1)
 router.get("/user/:id", (req, res) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 if not provided or invalid
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 10 if not provided or invalid
     const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
 
     // Calculate offset, ensure it's non-negative
@@ -67,6 +92,31 @@ router.get("/user/:id", (req, res) => {
     const id = req.params.id;
     pool.query(
       "SELECT * FROM ideas WHERE user_id = $1 LIMIT $2 OFFSET $3",
+      [id, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+// get recent ideas by user_id (example: localhost:5000/api/v1/idea/user/1/recent OR localhost:5000/api/v1/idea/user/1/recent?limit=1000&page=1)
+router.get("/user/:id/recent", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM ideas WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
       [id, limit, offset],
       (error, results) => {
         if (error) {
@@ -104,6 +154,83 @@ router.get("/forum/:id", (req, res) => {
     return res.status(500).send("Internal Server Error\n" + error);
   }
 });
+
+// get recent ideas by forum_id (example: localhost:5000/api/v1/idea/forum/1/recent OR localhost:5000/api/v1/idea/forum/1/recent?limit=1000&page=1)
+router.get("/forum/:id/recent", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+    // Calculate offset, ensure it's non-negative
+    const offset = Math.max((page - 1) * limit, 0);
+    const id = req.params.id;
+    pool.query(
+      "SELECT * FROM ideas WHERE forum_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+      [id, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+// get recent ideas by user_id and forums the user has joined
+router.get("/user/:id/feed", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1; // Default to 1 if not provided or invalid
+    const offset = Math.max((page - 1) * limit, 0);
+    const id = req.params.id;
+
+    pool.query(
+      `
+      SELECT * FROM (
+        -- Ideas created by the user
+        SELECT ideas.*
+        FROM ideas
+        WHERE ideas.user_id = $1
+        
+        UNION
+        
+        -- Ideas from forums the user has joined
+        SELECT ideas.*
+        FROM ideas
+        JOIN forum_joined ON ideas.forum_id = forum_joined.forums_id
+        WHERE forum_joined.user_id = $1
+
+        UNION
+        
+        -- Ideas from users who are connected to the user with accepted = true
+        SELECT ideas.*
+        FROM ideas
+        JOIN connections ON (ideas.user_id = connections.sender_id OR ideas.user_id = connections.receiver_id)
+        WHERE (connections.sender_id = $1 OR connections.receiver_id = $1)
+          AND connections.accepted = true
+          AND ideas.user_id != $1 -- Exclude ideas by the user to avoid duplicates
+
+      ) AS user_feed
+      ORDER BY user_feed.created_at DESC
+      LIMIT $2 OFFSET $3
+      `,
+      [id, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
 
 // search idea (example: localhost:5000/api/v1/idea/search?query=gamedev)
 router.get("/search", (req, res) => {
