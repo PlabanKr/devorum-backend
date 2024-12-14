@@ -30,7 +30,36 @@ router.get("/", (req, res) => {
   }
 });
 
-// Get a forum with particular id
+// Search forums by title or other attributes
+router.get("/search", (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 if not provided or invalid
+    const page = parseInt(req.query.page, 10) || 1;    // Default to 1 if not provided or invalid
+    const offset = Math.max((page - 1) * limit, 0);   // Ensure offset is non-negative
+    const { query } = req.query;                     // Extract the search query from the query parameters
+
+    if (!query) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    // Search forums by title, details, or other fields using ILIKE for case-insensitive matching
+    pool.query(
+      "SELECT * FROM forums WHERE title ILIKE $1 OR details ILIKE $1 LIMIT $2 OFFSET $3",
+      [`%${query}%`, limit, offset],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return res.status(200).json(results.rows);
+      }
+    );
+  } catch (error) {
+    console.log("Error: ", error);
+    return res.status(500).send("Internal Server Error\n" + error);
+  }
+});
+
+// Get a forum with particular id 
 router.get("/:id", (req, res) => {
   try {
     const id = req.params.id;
@@ -102,6 +131,5 @@ router.post("/", async (req, res) => {
     return res.status(500).send("Internal Server Error\n" + error);
   }
 });
-
 
 module.exports = router;
