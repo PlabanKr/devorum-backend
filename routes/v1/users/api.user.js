@@ -300,8 +300,8 @@ router.delete("/", (req, res) => {
             .status(201)
             .json({ message: "User deleted successfully", data: { id: id } });
         });
-      }
-    );
+      } 
+    ); 
   } catch (error) {
     console.log("Error: ", error);
     return res.status(500).send("Internal Server Error\n" + error);

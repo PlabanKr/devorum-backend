@@ -47,10 +47,10 @@ router.post("/", (req, res) => {
 // Delete a certification
 router.delete("/", (req, res) => {
     try {
-      const { user_id, title } = req.body;
+      const { certification_id } = req.body;
       pool.query(
-        "DELETE FROM certifications WHERE user_id = $1 AND title = $2 RETURNING *",
-        [user_id, title],
+        "DELETE FROM certifications WHERE certification_id = $1 RETURNING *",
+        [certification_id],
         (error, results) => {
           if (error) {
             throw error;
@@ -69,26 +69,35 @@ router.delete("/", (req, res) => {
 
 // Update a certification's title and link
 router.put("/", (req, res) => {
-    try {
-      const { user_id, title, newTitle, newLink } = req.body;
+  try {
+      const { certification_id, newTitle, newLink, user_id } = req.body;
+
+      // Validate input
+      if (!certification_id || !newTitle || !newLink || !user_id) {
+          return res.status(400).send("Missing required fields: certification_id, newTitle, or newLink");
+      }
+
       pool.query(
-        "UPDATE certifications SET title = $1, link = $2 WHERE user_id = $3 AND title = $4 RETURNING *",
-        [newTitle, newLink, user_id, title],
-        (error, results) => {
-          if (error) {
-            throw error;
+          "UPDATE certifications SET title = $2, link = $3, user_id = $4 WHERE certification_id = $1 RETURNING *",
+          [certification_id, newTitle, newLink, user_id],
+          (error, results) => {
+              if (error) {
+                  throw error;
+              }
+              if (results.rowCount === 0) {
+                  return res.status(404).send("Certification not found");
+              }
+              return res.status(200).json({ 
+                  message: "Certification updated successfully", 
+                  updated: results.rows[0] 
+              });
           }
-          if (results.rowCount === 0) {
-            return res.status(404).send("Certification not found");
-          }
-          return res.status(200).json({ message: "Certification updated successfully", updated: results.rows[0] });
-        }
       );
-    } catch (error) {
+  } catch (error) {
       console.log("Error: ", error);
       return res.status(500).send("Internal Server Error\n" + error);
-    }
-  });  
+  }
+});
   
 
 module.exports = router;

@@ -60,7 +60,7 @@ router.get("/search", (req, res) => {
 });
 
 // Get a forum with particular id 
-router.get("/:id", (req, res) => {
+router.get("/:id", (req, res) => { 
   try {
     const id = req.params.id;
     pool.query(
