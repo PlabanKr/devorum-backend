@@ -1,66 +1,67 @@
-create table users(
-	user_id serial primary key,
-	name varchar,
-	user_name varchar(255) not null unique,
-	email varchar not null unique,
-	profile_photo varchar,
-	hashed_password varchar not null,
-	bio varchar,
-	created_at timestamp default current_timestamp,
-    address varchar,
-    qualification varchar,
-    skills varchar,
-    gender varchar(20),
-    roles varchar(20)
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    user_name VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR NOT NULL UNIQUE,
+    profile_photo VARCHAR,
+    hashed_password VARCHAR NOT NULL,
+    bio VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    address VARCHAR,
+    qualification VARCHAR,
+    skills VARCHAR,
+    gender VARCHAR(20),
+    roles VARCHAR(20)
 );
 
-create table certifications(
-    certification_id serial primary key,
-    title varchar not null,
-    link varchar not null,
-    user_id int references users(user_id)
-)
-
-create table forums(
-	forum_id serial primary key,
-	title varchar not null unique,
-    devorum varchar not null unique,
-	details varchar,
-	rules varchar,
-	created_at timestamp default current_timestamp
+CREATE TABLE certifications (
+    certification_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    link VARCHAR NOT NULL,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-create type idea_status as enum ('searching', 'found', 'completed', 'on hold', 'abandoned');
-
-create table ideas(
-	idea_id serial primary key,
-	title varchar not null,
-	body varchar not null,
-	status idea_status not null default 'searching',
-	user_id int references users(user_id),
-	forum_id int references forums(forum_id),
-	created_at timestamp default current_timestamp
+CREATE TABLE forums (
+    forum_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL UNIQUE,
+    devorum VARCHAR NOT NULL UNIQUE,
+    details VARCHAR,
+    rules VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table idea_interested(
-	interested_id serial primary key,
-	user_id int references users(user_id),
-	ideas_id int references ideas(idea_id)
+CREATE TYPE idea_status AS ENUM ('searching', 'found', 'completed', 'on hold', 'abandoned');
+
+CREATE TABLE ideas (
+    idea_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    body VARCHAR NOT NULL,
+    status idea_status NOT NULL DEFAULT 'searching',
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    forum_id INT REFERENCES forums(forum_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table forum_joined(
-	joined_id serial primary key,
-	user_id int references users(user_id),
-	forums_id int references forums(forum_id)
+CREATE TABLE idea_interested (
+    interested_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    ideas_id INT REFERENCES ideas(idea_id) ON DELETE CASCADE
 );
 
-create table connections(
-	connection_id serial primary key,
-	sender_id int references users(user_id) not null,
-	receiver_id int references users(user_id) not null,
-	accepted boolean default false not null,
-	sent_at timestamp default current_timestamp
+CREATE TABLE forum_joined (
+    joined_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    forums_id INT REFERENCES forums(forum_id) ON DELETE CASCADE
 );
+
+CREATE TABLE connections (
+    connection_id SERIAL PRIMARY KEY,
+    sender_id INT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
+    receiver_id INT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
+    accepted BOOLEAN DEFAULT FALSE NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 INSERT INTO forums (title, details, rules, created_at, devorum)
 VALUES (
