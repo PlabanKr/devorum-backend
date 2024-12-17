@@ -1,88 +1,67 @@
--- create db
-create database devorum_express;
-
--- create tables and data types
-create type account_type as enum ('basic', 'premium', 'ultra');
-
-create table users(
-	user_id serial primary key,
-	name varchar,
-	user_name varchar(255) not null unique,
-	email varchar not null unique,
-	is_admin bool not null,
-	profile_photo varchar,
-	hashed_password varchar not null,
-	bio varchar,
-	account_type account_type not null default 'basic',
-	created_at timestamp default current_timestamp
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    user_name VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR NOT NULL UNIQUE,
+    profile_photo VARCHAR,
+    hashed_password VARCHAR NOT NULL,
+    bio VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    address VARCHAR,
+    qualification VARCHAR,
+    skills VARCHAR,
+    gender VARCHAR(20),
+    roles VARCHAR(20)
 );
 
-alter table users add column address varchar;
-alter table users add column qualification varchar;
-alter table users add column certifications varchar;
-alter table users add column skills_temp varchar;
-alter table users add column gender varchar(20);
-alter table users add column roles varchar(20);
-
-create table forums(
-	forum_id serial primary key,
-	title varchar not null unique,
-	details varchar,
-	rules varchar,
-	created_at timestamp default current_timestamp
+CREATE TABLE certifications (
+    certification_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    link VARCHAR NOT NULL,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-create type idea_status as enum ('abandoned', 'completed', 'hold', 'searching');
-
-create table ideas(
-	idea_id serial primary key,
-	title varchar not null,
-	body varchar not null,
-	status idea_status not null default 'searching',
-	user_id int references users(user_id),
-	forum_id int references forums(forum_id),
-	created_at timestamp default current_timestamp
+CREATE TABLE forums (
+    forum_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL UNIQUE,
+    devorum VARCHAR NOT NULL UNIQUE,
+    details VARCHAR,
+    rules VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table idea_interested(
-	interested_id serial primary key,
-	user_id int references users(user_id),
-	ideas_id int references ideas(idea_id)
+CREATE TYPE idea_status AS ENUM ('searching', 'found', 'completed', 'on hold', 'abandoned');
+
+CREATE TABLE ideas (
+    idea_id SERIAL PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    body VARCHAR NOT NULL,
+    status idea_status NOT NULL DEFAULT 'searching',
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    forum_id INT REFERENCES forums(forum_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-create table forum_joined(
-	joined_id serial primary key,
-	user_id int references users(user_id),
-	forums_id int references forums(forum_id)
+CREATE TABLE idea_interested (
+    interested_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    ideas_id INT REFERENCES ideas(idea_id) ON DELETE CASCADE
 );
 
-create table connections(
-	connection_id serial primary key,
-	sender_id int references users(user_id) not null,
-	receiver_id int references users(user_id) not null,
-	accepted boolean default false not null,
-	sent_at timestamp default current_timestamp
+CREATE TABLE forum_joined (
+    joined_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    forums_id INT REFERENCES forums(forum_id) ON DELETE CASCADE
 );
 
+CREATE TABLE connections (
+    connection_id SERIAL PRIMARY KEY,
+    sender_id INT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
+    receiver_id INT REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
+    accepted BOOLEAN DEFAULT FALSE NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- peek into all tables and schemas
-SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
-
--- seed database
-insert into users(name, user_name, email, is_admin, profile_photo, hashed_password, bio, account_type)
-values ('Test User', 'test_user_1234', 'test@test.com', false, 'http://test.com/photo', 'password', 'First account of this app', 'ultra');
-insert into users(name, user_name, email, is_admin, profile_photo, hashed_password, bio)
-values 	('Test User 2', 'test_user_1235', 'test1@test.com', false, 'http://test.com/photo', 'password', 'Second account of this app'),
-		('Test User 3', 'test_user_1236', 'test3@test.com', false, 'http://test.com/photo', 'password', 'Third account of this app');
-
--- peek into data 
-select * from users;
-select * from forums;
-select * from ideas;
-select * from idea_interested;
-select * from forum_joined;
-
-alter table forums add column devorum varchar;
 
 INSERT INTO forums (title, details, rules, created_at, devorum)
 VALUES (
@@ -129,23 +108,17 @@ VALUES (
 	'game-design'
 );
 
-insert into forum_joined(user_id, forums_id)
-values ( 2, 1 );
+-- peek into all tables and schemas
+SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';
 
-insert into forum_joined(user_id, forums_id)
-values ( 2, 2 );
-
-insert into forum_joined(user_id, forums_id)
-values ( 2, 3 );
-
-insert into forum_joined(user_id, forums_id)
-values ( 2, 4 );
-
-insert into forum_joined(user_id, forums_id)
-values ( 2, 5 );
-
-insert into connections (sender_id, receiver_id)
-values ( 3, 8 );
+-- peek into data 
+select * from users;
+select * from certifications;
+select * from connections;
+select * from forums;
+select * from ideas;
+select * from idea_interested;
+select * from forum_joined;
 
 
 
