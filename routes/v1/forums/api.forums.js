@@ -108,11 +108,12 @@ router.post("/", async (req, res) => {
           return res.status(409).json({ message: "Forum title already exists" });
         } else {
           pool.query(
-            "INSERT INTO forums (title, details, rules) VALUES ($1,$2,$3) RETURNING *",
+            "INSERT INTO forums (title, details, rules, devorum) VALUES ($1,$2,$3,$4) RETURNING *",
             [
               newForum.title,
               newForum.details,
               newForum.rules,
+              newForum.devorum,
             ],
             (error, results) => {
               if (error) {
