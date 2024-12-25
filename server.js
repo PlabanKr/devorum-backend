@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const cors = require("cors");
 const express = require("express");
+const pool = require("./database/postgres.database.js");
 
 // APP GLOBAL VARIABLE
 const SERVER = express();
@@ -19,6 +20,16 @@ SERVER.use("/api/v1/", apiV1);
 SERVER.get("/", (req, res) => {
   res.send("⚡Server is running⚡");
 });
+
+// Test Database Connection
+(async () => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    console.log("Database Connection Successful:", result.rows[0]);
+  } catch (error) {
+    console.error("Database Connection Failed:", error);
+  }
+})();
 
 // Start server on specified port
 SERVER.listen(PORT, () => {
